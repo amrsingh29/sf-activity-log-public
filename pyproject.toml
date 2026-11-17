@@ -1,0 +1,28 @@
+[project]
+name = "sfal"
+version = "0.5.3"
+description = "SF Activity Log - turns calendar, email, files and notes into a Salesforce-ready presales engineer activity log"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    "pyyaml>=6.0",
+    "openpyxl>=3.1",
+    "python-docx>=1.1",
+    "pypdf>=4",
+    "mcp>=2.3,<3",
+]
+
+[project.scripts]
+sfal = "sfal.cli:main"
+sfal-mcp = "sfal.mcp_server:main"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+sfal = ["rules/*.yaml", "helpers/*.swift", "profile_template.yaml", "catalog_modern.html"]

@@ -1,0 +1,39 @@
+name: Bug report
+description: Something gave a wrong result, failed, or was confusing
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Remove customer names and email content before posting.
+  - type: dropdown
+    id: host
+    attributes:
+      label: Where did you run it?
+      options: [Goose Desktop, Goose CLI, OpenCode, sfal CLI directly]
+    validations:
+      required: true
+  - type: dropdown
+    id: job
+    attributes:
+      label: Which job?
+      options: [Capture a note, Log your week, Set up your profile, Fix or re-run a period, Install, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: The output, trimmed. Engine error messages and check codes (C01-C21) help most.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `~/.sf-activity-log/bin/sfal doctor`
+      render: json

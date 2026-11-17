@@ -1,0 +1,102 @@
+# Example rule pack - a generic sample for the public edition (written for this project).
+# It shows the shape of a pack: replace it with your own company's types and rules.
+# Point your profile at your own file with `rules_pack: ~/my-rules.yaml`.
+version: example-1.0
+source: "Example logging guide v1.0 (sample rule pack)"
+
+internal_account: "Example Corp (12345678)"
+
+statuses: [Completed, In Progress, Planned, Cancelled]
+default_status: Completed
+
+solution_areas: [AIOps, Discovery, ITSM, ESM, Other]
+
+# Form field order for the Paste-Ready view.
+form_fields:
+  - Account
+  - Activity Type
+  - Opportunity
+  - Reason (no opportunity)
+  - Primary Owner
+  - Status
+  - Activity Date
+  - Activity Hours
+  - Prep Hours
+  - Activity Hours Notes
+  - Solution Area
+
+# Account routing: which account an activity is logged against.
+routing:
+  - situation: Customer exists
+    account: the customer
+  - situation: None, several customers, or internal (events, training, multi-customer sessions)
+    account: internal_account
+  - situation: Partner enablement
+    account: the partner
+  - situation: Partner deal
+    account: the customer, not the partner, so the deal links
+
+# Activity types in drop-down order. `code` is what the ledger stores ("07 · Product Demo").
+# The numbers drive the behaviour below; the names and definitions are only labels.
+activity_types:
+  - {num: "01", name: "Pipeline Generation", group: Pursue,
+     definition: "Work that creates or moves forward new opportunities: events, workshops and outreach to prospects."}
+  - {num: "02", name: "Discovery Call", group: Pursue,
+     definition: "Conversations with a customer or prospect to learn their goals, environment, problems and what a good result looks like."}
+  - {num: "03", name: "Executive Briefing", group: Pursue,
+     definition: "Material or sessions prepared for a customer's senior leaders: summaries, recommendations and leadership presentations."}
+  - {num: "04", name: "Technical Talk", group: Pursue,
+     definition: "Preparing or giving a technical presentation, architecture discussion or whiteboard session that does not include a live demo."}
+  - {num: "05", name: "Technical Review", group: Pursue,
+     definition: "Checking a customer's environment, requirements, integrations or readiness, including technical workshops, to see whether a solution fits."}
+  - {num: "06", name: "RFP/RFI", group: Pursue,
+     definition: "Reading, answering or checking a formal request for proposal or information, a questionnaire or a list of customer requirements."}
+  - {num: "07", name: "Product Demo", group: Pursue,
+     definition: "Preparing, giving or following up a demonstration of the product against a customer's needs or use cases."}
+  - {num: "08", name: "Value Review", group: Prove,
+     definition: "A structured review of the value a customer would get. Treat it as a single record that collects hours over time, and write the start and end dates in the notes."}
+  - {num: "09", name: "POC/POV", group: Prove,
+     definition: "A formal proof of concept or proof of value: planning, set-up, running it, testing against the agreed success measures, and presenting the results."}
+  - {num: "10", name: "Support - Partner", group: Support,
+     definition: "Technical help for a partner on an opportunity, a demo, positioning or a joint customer engagement. Not formal partner education."}
+  - {num: "11", name: "Support - Services", group: Support,
+     definition: "Technical help for the services or consulting team: background on the solution, design questions and hand-over."}
+  - {num: "12", name: "Support - Customer Care", group: Support,
+     definition: "Technical help for the customer care team to understand, reproduce or solve a customer's technical issue."}
+  - {num: "13", name: "Support - Marketing", group: Support,
+     definition: "Helping the marketing team with talks, events, campaigns and technical content."}
+  - {num: "14", name: "Support - Specialist Team", group: Support,
+     definition: "Technical help for a specialist team, for example on business cases, value assessments or customer workshops."}
+  - {num: "15", name: "Support - Peer", group: Support,
+     definition: "Helping a colleague on the same team: coaching, shadowing, working through a problem or preparing for a customer meeting."}
+  - {num: "16", name: "Enablement - Partner", group: Enablement,
+     definition: "Structured technical teaching or enablement given to partners."}
+  - {num: "17", name: "Enablement - Customer", group: Enablement,
+     definition: "Structured technical teaching given to customers: sessions, workshops and bootcamps."}
+  - {num: "18", name: "Enablement - Internal", group: Enablement,
+     definition: "Structured technical teaching for colleagues: product training, knowledge sharing and team events."}
+  - {num: "19", name: "Delivery - General", group: Delivery & Admin,
+     definition: "Customer-facing technical help after a sale that is not part of a named programme: adoption, guidance and hand-over."}
+  - {num: "20", name: "Delivery - Quick Start", group: Delivery & Admin,
+     definition: "A short guided start-up engagement: planning, enablement, set-up and checking. If you give a demo during it, record the demo as its own Product Demo."}
+  - {num: "21", name: "Delivery - Outcome Tracking", group: Delivery & Admin,
+     definition: "After-sale work that measures and shows the results a customer has achieved: reviews and outcome tracking."}
+  - {num: "22", name: "Team Administration", group: Delivery & Admin,
+     definition: "Setting up, looking after and fixing the team's own demo or test environments. Getting an environment ready for a single demo belongs under Product Demo."}
+
+# One record per engagement; hours accrue; Activity Date = latest date.
+consolidated_types: ["06", "08", "09"]
+# Opportunity should always be linked for these (warn when missing).
+opportunity_expected_types: ["06", "08", "09"]
+# Notes must carry start and end dates.
+dates_in_notes_types: ["08"]
+# Types that represent a customer deal; a partner account is wrong for these.
+deal_types: ["02", "03", "05", "06", "07", "08", "09", "19", "20", "21"]
+# Types where a partner account is expected (partner enablement).
+partner_enablement_types: ["10", "16"]
+# Record types that must not absorb a demo (log the demo separately as 07).
+demo_separate_types: ["09", "20"]
+
+# Calendar titles that indicate preparation rather than delivery.
+prep_title_keywords: [prep, preparation, dry run, dry-run, rehearsal, internal prep]
+demo_title_keywords: [demo, demonstration, walkthrough, showcase]

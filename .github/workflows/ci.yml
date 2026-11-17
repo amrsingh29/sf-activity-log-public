@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    # macOS: the engine targets Mail.app and EventKit; tests use fixtures, not real data
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # the suite starts the MCP server from .venv/bin, so build the same .venv as `make test`
+      - run: python -m venv .venv && .venv/bin/pip install -q -e .
+      - name: Generated rules page is current
+        run: make docs && git diff --exit-code docs/reference/rules.md
+      - run: make test

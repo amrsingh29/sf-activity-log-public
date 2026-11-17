@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity catalog — __OWNER__</title>
+<script>
+  /* theme first: runs before paint, and before any data work */
+  (function () {
+    var t;
+    try { t = localStorage.getItem("sfal-theme"); } catch (e) {}
+    if (!t) { try { t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } catch (e) { t = "light"; } }
+    document.documentElement.setAttribute("data-theme", t);
+    window.setTheme = function (mode) {
+      document.documentElement.setAttribute("data-theme", mode);
+      try { localStorage.setItem("sfal-theme", mode); } catch (e) {}
+      var b = document.querySelector("[data-theme-toggle]");
+      if (b) b.setAttribute("aria-label", mode === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    };
+  })();
+</script>
+<style>
+:root{
+  --bg:#fcfcfc;
+  --surface:#fff;
+  --panel:#fff;
+  --sunken:#f4f4f5;
+  --line:#e8e8ec;
+  --line-2:#d5d5dc;
+  --ink:#18181b;
+  --ink-2:#56565f;
+  --ink-3:#86868f;
+  --accent:#5b4bd6;
+  --accent-ink:#fff;
+  --btn:#18181b; --btn-ink:#fff;
+  --ring:#8f7ff5;
+  --shadow-1:0 1px 2px rgba(20,20,30,.05);
+  --shadow-2:0 4px 10px -4px rgba(20,20,30,.10), 0 18px 40px -24px rgba(20,20,30,.28);
+  --shadow-3:0 30px 80px -30px rgba(20,20,30,.42);
+  --r-lg:18px; --r:14px; --r-sm:10px;
+  --sans:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+:root[data-theme="dark"]{
+  --bg:#0c0c0e;
+  --surface:#151518;
+  --panel:#1a1a1e;
+  --sunken:#121215;
+  --line:#28282e;
+  --line-2:#3d3d46;
+  --ink:#f5f5f7;
+  --ink-2:#b6b6c0;
+  --ink-3:#8b8b96;
+  --accent:#a99bff;
+  --accent-ink:#12101f;
+  --btn:#f5f5f7; --btn-ink:#121214;
+  --ring:#a99bff;
+  --shadow-1:0 1px 2px rgba(0,0,0,.5);
+  --shadow-2:0 4px 12px -4px rgba(0,0,0,.5), 0 20px 44px -26px rgba(0,0,0,.85);
+  --shadow-3:0 34px 90px -34px rgba(0,0,0,.92);
+  color-scheme: dark;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+body{ margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 var(--sans);
+  -webkit-font-smoothing:antialiased; text-wrap:pretty; }
+h1,h2,h3,h4{ text-wrap:balance; }
+.mono{ font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+.wrap{ max-width:1120px; margin:0 auto; padding:0 28px 88px; }
+a{ color:inherit; text-decoration-color:var(--line-2); text-underline-offset:2px; }
+a:hover{ text-decoration-color:var(--ink-3); }
+:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; border-radius:6px; }
+::selection{ background:hsl(262 90% 90%); color:#221a44; }
+:root[data-theme="dark"] ::selection{ background:hsl(262 55% 34%); color:#fff; }
+
+/* ── top nav ───────────────────────────────────────────── */
+.topbar{ display:flex; align-items:center; gap:12px; padding:18px 0; }
+.brand{ display:flex; align-items:center; gap:9px; font-weight:590; font-size:14px; letter-spacing:-.012em; }
+.logo{ width:25px; height:25px; border-radius:7px; display:grid; place-items:center; font-size:10.5px; font-weight:700;
+  color:#fff; background:linear-gradient(150deg,#2a2a33,#4a4a58); box-shadow:var(--shadow-1); letter-spacing:.01em; }
+.brand em{ font-style:normal; color:var(--ink-3); font-weight:450; }
+.topright{ margin-left:auto; display:flex; align-items:center; gap:8px; }
+.stamp{ font-size:12px; color:var(--ink-3); }
+.icon-btn{ width:32px; height:32px; display:grid; place-items:center; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink-2); border-radius:8px; cursor:pointer; transition:color .14s, border-color .14s, background .14s; }
+.icon-btn:hover{ color:var(--ink); border-color:var(--line-2); background:var(--sunken); }
+.icon-btn svg{ width:15px; height:15px; }
+:root[data-theme="light"] .i-moon{ display:none; }
+:root[data-theme="dark"] .i-sun{ display:none; }
+
+/* ── hero ──────────────────────────────────────────────── */
+.hero{ text-align:center; padding:56px 0 40px; }
+.hero h1{ margin:0 auto; max-width:15ch; font-size:clamp(34px,5.4vw,56px); line-height:1.01;
+  letter-spacing:-.045em; font-weight:600; }
+.hero .lede{ margin:18px auto 0; max-width:56ch; color:var(--ink-2); font-size:15.5px; line-height:1.6; }
+.hero .lede b{ color:var(--ink); font-weight:560; }
+.actions{ display:flex; gap:10px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
+.btn{ display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 17px; border-radius:9px;
+  font:inherit; font-size:13.5px; font-weight:560; letter-spacing:-.005em; cursor:pointer;
+  border:1px solid transparent; transition:transform .12s, background .14s, border-color .14s, opacity .14s; }
+.btn:active{ transform:translateY(1px); }
+.btn.primary{ background:var(--btn); color:var(--btn-ink); box-shadow:var(--shadow-1); }
+.btn.primary:hover{ opacity:.9; }
+.btn.ghost{ background:var(--surface); color:var(--ink); border-color:var(--line-2); }
+.btn.ghost:hover{ background:var(--sunken); }
+.btn svg{ width:14px; height:14px; }
+
+/* ── stat panels (tinted) ──────────────────────────────── */
+.stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:4px; margin-bottom:44px; }
+.stat{ position:relative; border-radius:var(--r); padding:15px 16px 14px; border:1px solid;
+  border-color:hsl(var(--h) 45% 90%); background:hsl(var(--h) 68% 96.5%); }
+.stat dt{ font-size:10px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; color:hsl(var(--h) 38% 30%); }
+.stat dd{ margin:7px 0 0; font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:23px;
+  font-weight:500; letter-spacing:-.03em; color:hsl(var(--h) 45% 20%); line-height:1; }
+.stat .sfx{ display:block; margin-top:6px; font-size:11.5px; color:hsl(var(--h) 32% 32%); font-weight:500; }
+:root[data-theme="dark"] .stat{ background:hsl(var(--h) 38% 13%); border-color:hsl(var(--h) 32% 22%); }
+:root[data-theme="dark"] .stat dt{ color:hsl(var(--h) 62% 82%); }
+:root[data-theme="dark"] .stat dd{ color:hsl(var(--h) 70% 90%); }
+:root[data-theme="dark"] .stat .sfx{ color:hsl(var(--h) 46% 74%); }
+
+/* ── controls ──────────────────────────────────────────── */
+.controls{ position:sticky; top:0; z-index:40; background:var(--bg); padding:14px 0 12px; border-bottom:1px solid var(--line); }
+.controls::before{ content:""; position:absolute; inset:0 -28px; background:var(--bg); z-index:-1; }
+.controls .crow{ display:flex; gap:9px; align-items:center; flex-wrap:wrap; }
+.controls .tabrow{ margin-bottom:11px; padding-top:2px; border-top:1px solid var(--line); padding-top:13px; }
+.controls .tabrow .seg{ margin-top:0; }
+.seg{ display:inline-flex; gap:2px; padding:3px; background:var(--sunken); border:1px solid var(--line); border-radius:10px; }
+.seg button{ border:0; background:none; color:var(--ink-2); font:inherit; font-size:13px; font-weight:520;
+  padding:5px 13px; border-radius:7px; cursor:pointer; transition:background .14s, color .14s; white-space:nowrap; }
+.seg button:hover{ color:var(--ink); }
+.seg button[aria-selected="true"]{ background:var(--panel); color:var(--ink); font-weight:600;
+  box-shadow:0 1px 2px rgba(20,20,30,.07), 0 0 0 1px var(--line-2); }
+:root[data-theme="dark"] .seg button[aria-selected="true"]{ background:#33333c; color:#fff; box-shadow:0 0 0 1px #4d4d58; }
+.search{ position:relative; flex:1 1 260px; min-width:170px; }
+.search svg{ position:absolute; left:11px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--ink-3); pointer-events:none; }
+.search input{ width:100%; height:36px; padding:0 11px 0 33px; border:1px solid var(--line-2); border-radius:9px;
+  background:var(--surface); color:var(--ink); font:inherit; font-size:13.5px; transition:box-shadow .14s, border-color .14s; }
+.search input::placeholder{ color:var(--ink-3); }
+.search input:focus{ outline:none; border-color:var(--ring); box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 20%, transparent); }
+select{ height:36px; padding:0 9px; border:1px solid var(--line-2); border-radius:9px; background:var(--surface);
+  color:var(--ink); font:inherit; font-size:13px; max-width:180px; cursor:pointer; }
+.flag{ display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 12px; border:1px solid var(--line-2);
+  border-radius:9px; background:var(--surface); color:var(--ink-2); font-size:13px; cursor:pointer; user-select:none; white-space:nowrap; }
+.flag:hover{ background:var(--sunken); }
+.flag:has(input:checked){ color:var(--ink); background:var(--sunken); }
+.flag input{ appearance:none; -webkit-appearance:none; width:14px; height:14px; margin:0; position:relative; flex:none;
+  border:1.5px solid var(--line-2); border-radius:4px; background:var(--surface); cursor:pointer; }
+.flag input:checked{ background:var(--btn); border-color:var(--btn); }
+.flag input:checked::after{ content:""; position:absolute; left:3.4px; top:.3px; width:4px; height:7.5px;
+  border:1.6px solid var(--btn-ink); border-top:0; border-left:0; transform:rotate(41deg); }
+.count{ color:var(--ink-3); font-size:12px; margin:0; padding:16px 0 10px; letter-spacing:.01em; }
+main{ padding-top:2px; }
+
+/* ── tinted preview panels (the reference card) ────────── */
+.pgrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:14px; }
+.pcard{ position:relative; display:flex; flex-direction:column; gap:9px; padding:13px;
+  border-radius:var(--r-lg); border:1px solid hsl(var(--h) 45% 90%); background:hsl(var(--h) 68% 96.5%);
+  cursor:pointer; text-align:left; transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+.pcard:hover{ transform:translateY(-2px); box-shadow:var(--shadow-2); border-color:hsl(var(--h) 50% 84%); }
+:root[data-theme="dark"] .pcard{ background:hsl(var(--h) 38% 12.5%); border-color:hsl(var(--h) 30% 21%); }
+:root[data-theme="dark"] .pcard:hover{ border-color:hsl(var(--h) 40% 32%); }
+.pcard .ptop{ display:flex; align-items:center; gap:7px; padding:1px 3px 0; }
+.pcard .ptitle{ font-size:13.5px; font-weight:590; line-height:1.32; letter-spacing:-.012em; padding:0 3px;
+  color:hsl(var(--h) 40% 17%); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+:root[data-theme="dark"] .pcard .ptitle{ color:hsl(var(--h) 60% 92%); }
+.pcard .pdate{ margin-left:auto; font-family:var(--mono); font-size:11px; color:hsl(var(--h) 35% 34%); }
+:root[data-theme="dark"] .pcard .pdate{ color:hsl(var(--h) 42% 72%); }
+
+.panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--r-sm); padding:11px 12px;
+  box-shadow:var(--shadow-1); display:flex; flex-direction:column; gap:9px; flex:1; }
+:root[data-theme="dark"] .panel{ border-color:#2c2c33; }
+.panel .psum{ margin:0; font-size:12.8px; line-height:1.52; color:var(--ink-2);
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.panel .pfoot{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:auto;
+  padding-top:9px; border-top:1px solid var(--line); font-size:11.5px; color:var(--ink-3); }
+.panel .pfoot .sp{ margin-left:auto; }
+
+/* chips */
+.chip{ display:inline-flex; align-items:center; gap:5px; height:21px; padding:0 8px; border-radius:999px;
+  font-size:11px; font-weight:520; letter-spacing:.004em; white-space:nowrap;
+  background:var(--sunken); color:var(--ink-2); border:1px solid var(--line); }
+.chip.on-tint{ background:#fff; border-color:hsl(var(--h) 42% 82%); color:hsl(var(--h) 42% 26%); font-weight:560; }
+:root[data-theme="dark"] .chip.on-tint{ background:rgba(255,255,255,.07); border-color:hsl(var(--h) 30% 26%); color:hsl(var(--h) 60% 84%); }
+.chip.ok{ background:hsl(152 58% 94%); color:hsl(154 60% 24%); border-color:hsl(152 40% 86%); }
+.chip.warn{ background:hsl(38 96% 93%); color:hsl(28 78% 32%); border-color:hsl(38 70% 84%); }
+.chip.void{ background:transparent; color:var(--ink-3); border-color:var(--line); text-decoration:line-through; }
+:root[data-theme="dark"] .chip.ok{ background:hsl(154 42% 14%); color:hsl(152 62% 74%); border-color:hsl(154 30% 22%); }
+:root[data-theme="dark"] .chip.warn{ background:hsl(32 44% 15%); color:hsl(38 88% 74%); border-color:hsl(32 36% 23%); }
+.chip .dot{ width:5px; height:5px; border-radius:50%; background:currentColor; opacity:.8; }
+.chip.plain{ background:transparent; border-color:var(--line-2); }
+
+/* day groups */
+.daygroup + .daygroup{ margin-top:30px; }
+.daygroup-head{ display:flex; align-items:baseline; gap:11px; padding:0 2px 10px; margin-bottom:11px;
+  border-bottom:1px solid var(--line); }
+.daygroup-head h2{ margin:0; font-size:12.5px; font-weight:620; letter-spacing:.02em; }
+.daygroup-head .wkd{ color:var(--ink-3); font-weight:500; }
+.daygroup-head .meta{ margin-left:auto; font-family:var(--mono); font-size:11.5px; color:var(--ink-3); }
+
+/* ── table ─────────────────────────────────────────────── */
+.tablewrap{ border:1px solid var(--line); border-radius:var(--r); background:var(--surface); box-shadow:var(--shadow-1); }
+.tablewrap .scroll{ border-radius:var(--r); }
+table{ width:100%; border-collapse:collapse; font-size:13px; }
+th,td{ text-align:left; padding:10px 13px; border-bottom:1px solid var(--line); vertical-align:middle; }
+thead th{ position:sticky; top:var(--stickytop,0px); z-index:2; background:var(--surface); padding:0;
+  box-shadow:inset 0 -1px 0 var(--line); }
+thead th:first-child{ border-top-left-radius:13px; } thead th:last-child{ border-top-right-radius:13px; }
+tbody tr:last-child td{ border-bottom:0; }
+thead th button{ all:unset; display:flex; align-items:center; gap:5px; width:100%; padding:10px 13px; cursor:pointer;
+  font-size:10.5px; font-weight:650; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); }
+thead th button:hover, thead th button.on{ color:var(--ink); }
+thead th .arrow{ font-size:9px; opacity:.35; } thead th button.on .arrow{ opacity:1; }
+tbody tr{ cursor:pointer; transition:background .12s; }
+tbody tr:hover td{ background:var(--sunken); }
+tbody tr.voided td{ color:var(--ink-3); }
+tbody tr.voided td:first-child{ text-decoration:line-through; }
+td.id, td.num{ font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:12px; white-space:nowrap; }
+td.id{ color:var(--ink-2); }
+td.num{ text-align:right; }
+th.numcell button{ justify-content:flex-end; }
+table.recs{ table-layout:fixed; }
+table.recs col.c-id{ width:80px; } table.recs col.c-date{ width:100px; } table.recs col.c-acct{ width:190px; }
+table.recs col.c-type{ width:auto; } table.recs col.c-h{ width:70px; } table.recs col.c-status{ width:108px; }
+table.recs col.c-ev{ width:92px; }
+table.recs td.type{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+table.recs .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis; display:inline-block; line-height:19px; }
+
+/* ── calendar ──────────────────────────────────────────── */
+.calbar{ display:flex; align-items:center; gap:10px; margin:2px 0 13px; flex-wrap:wrap; }
+.calbar h2{ margin:0; font-size:18px; font-weight:600; letter-spacing:-.025em; min-width:160px; }
+.calbar .nav{ display:inline-flex; gap:2px; padding:3px; background:var(--sunken); border:1px solid var(--line); border-radius:9px; }
+.calbar .nav button{ border:0; background:none; color:var(--ink-2); width:26px; height:24px; border-radius:6px; cursor:pointer; font-size:14px; line-height:1; }
+.calbar .nav button:hover{ background:var(--surface); color:var(--ink); }
+.calbar .today-btn{ height:30px; padding:0 11px; border:1px solid var(--line-2); border-radius:8px; background:var(--surface);
+  color:var(--ink-2); font:inherit; font-size:12px; cursor:pointer; }
+.calbar .today-btn:hover{ background:var(--sunken); color:var(--ink); }
+.legend{ margin-left:auto; display:flex; gap:6px; align-items:center; }
+.cal{ display:grid; grid-template-columns:repeat(7, minmax(0,1fr)) 82px; background:var(--line); gap:1px;
+  border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+.cal .hd{ background:var(--sunken); color:var(--ink-3); font-size:10px; font-weight:650; letter-spacing:.09em;
+  text-transform:uppercase; padding:8px 10px; }
+.cal .hd.wk{ text-align:center; }
+.cal .day{ background:var(--surface); min-height:112px; padding:6px; cursor:pointer; display:flex; flex-direction:column;
+  gap:3px; min-width:0; transition:background .12s; }
+.cal .day:hover{ background:var(--sunken); }
+.cal .day.out{ background:var(--bg); }
+.cal .day.out .dn{ color:var(--ink-3); }
+.cal .dtop{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:2px; }
+.cal .dn{ font-family:var(--mono); font-size:12px; font-weight:500; color:var(--ink); width:20px; height:19px;
+  display:grid; place-items:center; border-radius:5px; }
+.cal .day.today .dn{ background:var(--btn); color:var(--btn-ink); font-weight:600; }
+.cal .dh{ font-family:var(--mono); font-size:10.5px; color:var(--ink-2); }
+.it{ font-size:10.8px; line-height:1.38; padding:2.5px 5px; border-radius:5px; white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis; border:1px solid; font-weight:480; }
+.it.n{ background:hsl(var(--h) 68% 96%); color:hsl(var(--h) 40% 30%); border-color:hsl(var(--h) 42% 89%); }
+:root[data-theme="dark"] .it.n{ background:hsl(var(--h) 40% 15%); color:hsl(var(--h) 72% 88%); border-color:hsl(var(--h) 34% 26%); }
+.it.n.unl{ box-shadow:inset 2.5px 0 0 hsl(38 90% 52%); }
+.it.r{ background:var(--sunken); color:var(--ink-2); border-color:var(--line-2); }
+:root[data-theme="dark"] .it.r{ color:#cfcfd8; border-color:#3a3a44; }
+.it.r.h{ background:hsl(38 96% 93%); color:hsl(28 80% 30%); border-color:hsl(38 70% 84%); }
+:root[data-theme="dark"] .it.r.h{ background:hsl(32 44% 15%); color:hsl(38 88% 76%); border-color:hsl(32 36% 23%); }
+.cal .more{ font-size:10px; color:var(--ink-3); padding-left:5px; }
+.cal .wk{ background:var(--surface); display:flex; flex-direction:column; justify-content:center; align-items:center;
+  gap:3px; padding:8px; text-align:center; }
+.cal .wk b{ font-family:var(--mono); font-size:13.5px; font-weight:500; letter-spacing:-.02em; }
+.cal .wk span{ font-size:10px; color:var(--ink-2); }
+.agenda{ display:none; list-style:none; margin:0; padding:0; }
+.agenda li{ display:flex; gap:11px; padding:10px 0; border-bottom:1px solid var(--line); }
+.agenda li > .d{ font-family:var(--mono); font-size:11.5px; color:var(--ink-3); width:82px; flex:none; padding-top:2px; }
+.agenda li > div{ display:flex; flex-direction:column; gap:4px; min-width:0; flex:1; }
+.agenda .it{ white-space:normal; }
+@media (max-width:820px){ .cal{ display:none; } .agenda{ display:block; } }
+
+/* ── periods / accounts ────────────────────────────────── */
+.metrics{ display:grid; grid-template-columns:1fr 1fr; gap:0 12px; margin:2px 0 0; }
+.metrics .n{ display:block; font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:22px;
+  font-weight:500; letter-spacing:-.035em; line-height:1.1; }
+.metrics .n.zero{ color:var(--ink-3); }
+.metrics .n span{ display:block; font-family:var(--sans); font-size:10px; font-weight:620; color:var(--ink-3);
+  margin:5px 0 0; letter-spacing:.09em; text-transform:uppercase; }
+.plinks{ display:flex; align-items:center; gap:12px; margin-top:auto; padding-top:9px; border-top:1px solid var(--line);
+  font-size:11.5px; color:var(--ink-3); flex-wrap:wrap; }
+.plinks a{ color:var(--ink-2); text-decoration:none; border-bottom:1px solid var(--line-2); padding-bottom:1px; }
+.plinks a:hover{ color:var(--ink); border-color:var(--ink-3); }
+.kind{ font-size:10px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); }
+.panel h3{ margin:0; font-size:12.5px; font-weight:560; letter-spacing:-.005em; }
+.panel h3.range{ font-family:var(--mono); font-size:12.5px; letter-spacing:-.01em; }
+.meta{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-3); }
+
+.empty{ text-align:center; padding:70px 20px; color:var(--ink-3); }
+.empty b{ display:block; color:var(--ink); font-size:15px; font-weight:560; margin-bottom:5px; }
+.empty p{ margin:0; font-size:13.5px; }
+
+/* ── drawer ────────────────────────────────────────────── */
+.sheetwrap{ position:fixed; inset:0; z-index:100; display:flex; justify-content:flex-end;
+  visibility:hidden; opacity:0; transition:opacity .18s ease, visibility .18s; }
+.sheetwrap.open{ visibility:visible; opacity:1; }
+.backdrop{ position:absolute; inset:0; background:rgba(14,14,20,.4); backdrop-filter:blur(2px); }
+.sheet{ position:relative; width:min(740px,94vw); height:100%; background:var(--surface); border-left:1px solid var(--line);
+  box-shadow:var(--shadow-3); display:flex; flex-direction:column; transform:translateX(16px);
+  transition:transform .22s cubic-bezier(.22,.61,.36,1); }
+.sheetwrap.open .sheet{ transform:none; }
+.sheet-head{ flex:none; display:flex; align-items:flex-start; gap:12px; padding:17px 22px 15px; border-bottom:1px solid var(--line); }
+.sheet-head .t{ min-width:0; flex:1; }
+.sheet-head h2{ margin:0; font-size:16.5px; font-weight:600; line-height:1.35; letter-spacing:-.018em; }
+.sheet-sub{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.hbtns{ display:flex; align-items:center; gap:6px; flex:none; }
+.ghost{ height:29px; padding:0 11px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2);
+  border-radius:7px; font:inherit; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+.ghost:hover{ background:var(--sunken); color:var(--ink); }
+.sheet-body{ flex:1; overflow-y:auto; padding:20px 22px 56px; overscroll-behavior:contain; }
+.kv{ display:grid; grid-template-columns:100px 1fr; gap:10px 16px; font-size:13px; margin:0 0 22px;
+  padding:15px 17px; border:1px solid var(--line); border-radius:11px; background:var(--sunken); }
+.kv dt{ color:var(--ink-2); font-size:12px; }
+.kv dd{ margin:0; min-width:0; overflow-wrap:anywhere; }
+.kv a{ color:var(--ink); }
+.sheet-body h1{ font-size:18px; margin:26px 0 8px; letter-spacing:-.02em; }
+.sheet-body h2{ font-size:13.5px; margin:23px 0 7px; letter-spacing:-.005em; }
+.sheet-body h3{ font-size:13px; margin:18px 0 6px; }
+.sheet-body p, .sheet-body ul{ margin:0 0 11px; font-size:13.8px; line-height:1.65; max-width:68ch; }
+.sheet-body ul{ padding-left:19px; }
+.sheet-body li{ margin-bottom:4px; }
+.sheet-body h1, .sheet-body h2, .sheet-body h3{ max-width:68ch; }
+.sheet-body code{ font-family:var(--mono); font-size:12.3px; background:var(--sunken); padding:1px 5px; border-radius:4px; }
+.sheet-body > h1:first-child{ margin-top:0; }
+.mdtable{ border:1px solid var(--line); border-radius:9px; overflow:auto; margin:0 0 16px; }
+.mdtable table{ font-size:12.5px; }
+.timeline{ list-style:none; margin:0; padding:0; }
+.timeline li{ display:flex; gap:13px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.timeline .d{ font-family:var(--mono); font-size:11.5px; color:var(--ink-3); width:82px; flex:none; padding-top:2px; }
+.timeline li:last-child{ border-bottom:0; }
+.sectlabel{ font-size:10px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin:24px 0 9px; }
+.sheet-body .sectlabel:first-child{ margin-top:0; }
+@media (prefers-reduced-motion:reduce){ .sheet, .sheetwrap, .pcard, .btn{ transition:none !important; } }
+
+/* error banner if the embedded data ever fails to parse */
+.fatal{ margin:20px 0; padding:14px 16px; border-radius:11px; border:1px solid hsl(0 70% 85%);
+  background:hsl(0 80% 97%); color:hsl(0 65% 32%); font-size:13.5px; }
+:root[data-theme="dark"] .fatal{ background:hsl(0 45% 14%); border-color:hsl(0 40% 26%); color:hsl(0 75% 82%); }
+
+@media (max-width:720px){
+  .wrap{ padding:0 18px 60px; }
+  .hero{ padding:34px 0 28px; }
+  .stats{ grid-template-columns:repeat(2,1fr); }
+  .controls{ padding:10px 0; } .controls::before{ inset:0 -18px; }
+  .seg{ width:100%; overflow-x:auto; scrollbar-width:none;
+    mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
+    -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%); }
+  .seg button{ flex:1 1 auto; padding:6px 8px; font-size:12.3px; text-align:center; }
+  .pgrid{ grid-template-columns:1fr; }
+  .sheet{ width:100%; }
+  .kv{ grid-template-columns:1fr; gap:2px 0; padding:13px 14px; }
+  .kv dd{ margin-bottom:8px; }
+  .stamp{ display:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand"><span class="logo">SF</span>Activity catalog <em>· __OWNER__</em></div>
+    <div class="topright">
+      <span class="stamp" id="stamp"></span>
+      <button class="icon-btn" data-theme-toggle id="themeBtn" aria-label="Switch theme" title="Switch between light and dark">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2.2M12 19.6v2.2M2.2 12h2.2M19.6 12h2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.7 6.7 0 0 0 10.5 10.5Z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h1>Everything you logged, one quiet page.</h1>
+    <p class="lede" id="intro"></p>
+    <div class="actions">
+      <button class="btn primary" id="goNotes">Browse notes
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn ghost" id="goCal">Open the calendar</button>
+    </div>
+  </section>
+
+  <dl class="stats" id="stats"></dl>
+
+  <div class="controls">
+    <div class="crow tabrow">
+      <nav class="seg" id="tabs" role="tablist" aria-label="Views">
+        <button data-t="notes" role="tab" aria-selected="true">Notes</button>
+        <button data-t="records" role="tab" aria-selected="false">Records</button>
+        <button data-t="calendar" role="tab" aria-selected="false">Calendar</button>
+        <button data-t="periods" role="tab" aria-selected="false">Periods</button>
+        <button data-t="accounts" role="tab" aria-selected="false">Accounts</button>
+      </nav>
+    </div>
+    <div class="crow">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        <input type="search" id="q" placeholder="Search notes, records, accounts, follow-ups…  (press /)" autocomplete="off">
+      </div>
+      <select id="acct" aria-label="Account"><option value="">All accounts</option></select>
+      <select id="when" aria-label="Time range">
+        <option value="0">Any time</option><option value="7">Last 7 days</option>
+        <option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option>
+      </select>
+      <label class="flag" id="opt"><input type="checkbox" id="flag"><span id="flagtxt"></span></label>
+    </div>
+  </div>
+
+  <main>
+    <p class="count" id="count" aria-live="polite"></p>
+    <div id="view"></div>
+  </main>
+</div>
+
+<div class="sheetwrap" id="sheet" aria-hidden="true">
+  <div class="backdrop" data-close></div>
+  <aside class="sheet" role="dialog" aria-modal="true" aria-labelledby="dt">
+    <div class="sheet-head">
+      <div class="t"><h2 id="dt"></h2><div class="sheet-sub" id="dsub"></div></div>
+      <div class="hbtns">
+        <button class="ghost" id="back" hidden>← Back</button>
+        <button class="ghost" id="close">Close</button>
+      </div>
+    </div>
+    <div class="sheet-body" id="db"></div>
+  </aside>
+</div>
+
+<script>
+/* theme toggle is bound here, on its own, so it works even if anything below fails */
+(function () {
+  var btn = document.getElementById("themeBtn");
+  if (!btn) return;
+  btn.addEventListener("click", function () {
+    var now = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    window.setTheme(now);
+  });
+  var cur = document.documentElement.getAttribute("data-theme");
+  btn.setAttribute("aria-label", cur === "dark" ? "Switch to light mode" : "Switch to dark mode");
+})();
+</script>
+
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(function () {
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let D;
+try {
+  D = JSON.parse(document.getElementById("data").textContent);
+  if (!D || !Array.isArray(D.notes) || !Array.isArray(D.records)) throw new Error("catalog data is incomplete");
+} catch (err) {
+  document.getElementById("view").innerHTML =
+    '<div class="fatal"><b>The catalog data could not be read.</b><br>' + esc(err.message) +
+    '<br>This usually means the file was opened while it was still being written. Re-open the file, ' +
+    'or run <code>sfal catalog</code> to rebuild it.</div>';
+  document.getElementById("count").textContent = "";
+  return;
+}
+
+const noteById = Object.fromEntries(D.notes.map(n => [n.id, n]));
+const recById  = Object.fromEntries(D.records.map(r => [r.id, r]));
+const HUES = [268, 158, 24, 205, 332, 44, 186, 96];
+const hue = s => HUES[[...String(s || "")].reduce((a, c) => a + c.charCodeAt(0), 0) % HUES.length];
+
+let tab = "notes", stack = [], calCount = 0, calNotes = 0, calRecs = 0;
+const latest = [...D.notes.map(n => n.date), ...D.records.map(r => r.date)].sort().pop() || new Date().toISOString().slice(0, 10);
+let calMonth = latest.slice(0, 7);
+let sort = {key: "date", dir: -1};
+
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const words = () => $("q").value.toLowerCase().split(/\s+/).filter(Boolean);
+const hit = (text, ws) => { const t = text.toLowerCase(); return ws.every(w => t.includes(w)); };
+const recent = d => { const n = +$("when").value; if (!n || !d) return true; return (Date.now() - new Date(d).getTime()) / 864e5 <= n; };
+const hours = v => (v === null || v === undefined || v === "") ? "-" : (isNaN(+v) ? esc(v) : (+v).toString());
+const hval  = v => isNaN(+v) ? 0 : (+v);
+const trim  = v => Math.round(hval(v) * 100) / 100;
+const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + "s")}`;
+const fmtDay = d => { const dt = new Date(d + "T00:00");
+  return dt.toLocaleDateString(undefined, {weekday: "short", day: "numeric", month: "long", year: "numeric"}); };
+const fmtShort = d => { const dt = new Date(d + "T00:00");
+  return dt.toLocaleDateString(undefined, {day: "numeric", month: "short"}); };
+const hud = a => `style="--h:${hue(a)}"`;
+const chipAcct = a => a ? `<span class="chip" ${hud(a)}>${esc(a)}</span>` : `<span class="chip warn">no account</span>`;
+const tintChip = a => a ? `<span class="chip on-tint" ${hud(a)}>${esc(a)}</span>` : `<span class="chip warn">no account</span>`;
+const noteChip = n => n.logged_by.length
+  ? `<span class="chip ok"><i class="dot"></i>logged ${esc(n.logged_by.join(", "))}</span>`
+  : `<span class="chip warn"><i class="dot"></i>not logged</span>`;
+const statusChip = r => r.voided ? `<span class="chip void">voided${r.voided_by ? " by " + esc(r.voided_by) : ""}</span>`
+  : r.held ? `<span class="chip warn"><i class="dot"></i>held</span>` : `<span class="chip ok"><i class="dot"></i>ready</span>`;
+
+/* ── head ─────────────────────────────────────────────── */
+const activeRecs = D.records.filter(r => !r.voided);
+const unlogged = D.notes.filter(n => !n.logged_by.length).length;
+const heldN = D.records.filter(r => r.held && !r.voided).length;
+const loggedH = activeRecs.filter(r => !r.held).reduce((a, r) => a + hval(r.act), 0);
+const prepH = activeRecs.filter(r => !r.held).reduce((a, r) => a + hval(r.prep), 0);
+$("stamp").textContent = "updated " + D.generated;
+$("intro").innerHTML = `<b>${plural(D.notes.length, "activity note")}</b>, <b>${plural(activeRecs.length, "ledger record")}</b>
+  and <b>${plural(D.periods.length, "rendered period")}</b>, read straight from the ledger. Nothing here is editable.`;
+$("stats").innerHTML = [
+  ["Notes", D.notes.length, `${D.notes.length - unlogged} logged`, 268],
+  ["Records", activeRecs.length, `${D.records.length - activeRecs.length} voided`, 205],
+  ["Activity hours", trim(loggedH), `+ ${trim(prepH)} prep`, 158],
+  ["Needs action", unlogged + heldN, `${unlogged} unlogged · ${heldN} held`, 24],
+].map(([k, v, s, h]) => `<div class="stat" style="--h:${h}"><dt>${k}</dt><dd>${v}</dd><span class="sfx">${s}</span></div>`).join("");
+
+const accts = [...new Set([...D.notes.map(n => n.account), ...D.records.map(r => r.account)].filter(Boolean))]
+  .sort((a, b) => a.localeCompare(b));
+$("acct").insertAdjacentHTML("beforeend", accts.map(a => `<option>${esc(a)}</option>`).join(""));
+
+/* ── markdown ─────────────────────────────────────────── */
+function md(src) {
+  const lines = esc(src).split("\n"), out = []; let list = false, table = [];
+  const inline = s => s.replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").replace(/\*([^*]+)\*/g, "<i>$1</i>");
+  const flushT = () => { if (!table.length) return; const rows = table.filter(r => !/^\|\s*-/.test(r));
+    out.push("<div class='mdtable'><table>" + rows.map((r, i) =>
+      "<tr>" + r.replace(/^\||\|$/g, "").split("|").map(c => (i ? "<td>" : "<th>") + inline(c.trim()) + (i ? "</td>" : "</th>")).join("") + "</tr>"
+    ).join("") + "</table></div>"); table = []; };
+  for (const l of lines) {
+    if (/^\|/.test(l)) { table.push(l); continue; } flushT();
+    const li = l.match(/^\s*[-*]\s+(\[[ xX]\]\s+)?(.*)$/);
+    if (li) { if (!list) { out.push("<ul>"); list = true; }
+      out.push(`<li>${li[1] ? (/x/i.test(li[1]) ? "☑ " : "☐ ") : ""}${inline(li[2])}</li>`); continue; }
+    if (list) { out.push("</ul>"); list = false; }
+    const h = l.match(/^(#{1,3})\s+(.*)$/);
+    if (h) out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`);
+    else if (l.trim()) out.push(`<p>${inline(l)}</p>`);
+  }
+  flushT(); if (list) out.push("</ul>"); return out.join("");
+}
+function mdBody(src, title) {
+  const lines = String(src).split("\n");
+  const i = lines.findIndex(l => l.trim());
+  const h = i >= 0 && lines[i].match(/^#\s+(.*)$/);
+  if (h && h[1].trim().toLowerCase().replace(/\s+/g, " ") === String(title || "").trim().toLowerCase().replace(/\s+/g, " ")) {
+    lines.splice(i, 2);
+  }
+  return md(lines.join("\n"));
+}
+
+/* ── calendar data ────────────────────────────────────── */
+function dayItems(ws, a, f) {
+  const by = {}, get = d => by[d] ??= {notes: [], recs: [], h: 0};
+  D.notes.filter(x => (!a || x.account === a) && (!f || !x.logged_by.length)
+      && hit([x.title, x.account, x.summary, x.text].join(" "), ws))
+    .forEach(x => get(x.date).notes.push(x));
+  if (!f) D.records.filter(x => !x.voided && (!a || x.account === a)
+      && hit([x.id, x.account, x.type, x.notes].join(" "), ws))
+    .forEach(x => { const g = get(x.date); g.recs.push(x); if (!x.held) g.h += hval(x.act); });
+  return by;
+}
+
+const SORT_COLS = [["id", "ID"], ["date", "Date"], ["account", "Account"], ["type", "Type"],
+  ["act", "Act h", "num"], ["prep", "Prep h", "num"], ["status", "Status"]];
+const sortVal = (x, k) => k === "act" || k === "prep" ? (isNaN(+x[k]) ? -1 : +x[k])
+  : k === "status" ? (x.voided ? 2 : x.held ? 1 : 0) : String(x[k] ?? "").toLowerCase();
+const th = ([k, label, cls]) => `<th class="${cls ? "numcell" : ""}"><button data-sort="${k}" class="${sort.key === k ? "on" : ""}"
+  aria-label="Sort by ${label}">${label}<span class="arrow">${sort.key === k ? (sort.dir > 0 ? "▲" : "▼") : "↕"}</span></button></th>`;
+const FLAGS = {notes: "Not logged yet only", records: "Show voided", calendar: "Not logged yet only",
+  periods: "With held records only", accounts: "With open follow-ups only"};
+
+/* ── views ────────────────────────────────────────────── */
+function noteCard(x) {
+  return `<article class="pcard" data-note="${x.id}" tabindex="0" role="button" ${hud(x.account)} aria-label="${esc(x.title)}">
+    <div class="ptop">${tintChip(x.account)}<span class="pdate">${esc(x.date)}</span></div>
+    <div class="ptitle">${esc(x.title)}</div>
+    <div class="panel">
+      <p class="psum">${esc(x.summary)}</p>
+      <div class="pfoot">
+        ${x.hours !== null ? `<span class="mono">${hours(x.hours)} h</span>` : ""}
+        ${noteChip(x)}
+        ${x.follow_ups.length ? `<span class="sp">${plural(x.follow_ups.length, "follow-up")}</span>` : ""}
+      </div>
+    </div>
+  </article>`;
+}
+
+function viewNotes() {
+  const ws = words(), a = $("acct").value, f = $("flag").checked;
+  const rows = D.notes.filter(x => (!a || x.account === a) && recent(x.date) && (!f || !x.logged_by.length)
+    && hit([x.title, x.account, x.summary, x.text, x.folder].join(" "), ws));
+  if (!rows.length) return {n: 0, html: ""};
+  const by = {};
+  rows.forEach(x => (by[x.date] ??= []).push(x));
+  const html = Object.keys(by).sort().reverse().map(d => {
+    const g = by[d], h = g.reduce((s, x) => s + hval(x.hours), 0);
+    const [wkd, ...rest] = fmtDay(d).split(" ");
+    return `<section class="daygroup">
+      <header class="daygroup-head"><h2><span class="wkd">${wkd}</span> ${rest.join(" ")}</h2>
+        <span class="meta">${plural(g.length, "note")}${h ? ` · ${trim(h)} h` : ""}</span></header>
+      <div class="pgrid">${g.map(noteCard).join("")}</div></section>`;
+  }).join("");
+  return {n: rows.length, html};
+}
+
+function viewRecords() {
+  const ws = words(), a = $("acct").value, f = $("flag").checked;
+  const rows = D.records.filter(x => (f || !x.voided) && (!a || x.account === a) && recent(x.date)
+    && hit([x.id, x.account, x.type, x.status, x.notes, x.opportunity, x.no_opp_reason, x.area].join(" "), ws));
+  rows.sort((p, q) => {
+    const a2 = sortVal(p, sort.key), b2 = sortVal(q, sort.key);
+    return (a2 < b2 ? -1 : a2 > b2 ? 1 : (p.date < q.date ? 1 : p.date > q.date ? -1 : 0)) * (a2 === b2 ? 1 : sort.dir);
+  });
+  if (!rows.length) return {n: 0, html: ""};
+  const html = `<div class="tablewrap"><div class="scroll"><table class="recs">
+    <colgroup><col class="c-id"><col class="c-date"><col class="c-acct"><col class="c-type">
+      <col class="c-h"><col class="c-h"><col class="c-status"><col class="c-ev"></colgroup>
+    <thead><tr>${SORT_COLS.map(th).join("")}<th><button style="cursor:default">Evidence</button></th></tr></thead>
+    <tbody>${rows.map(x => `<tr class="${x.voided ? "voided" : ""}" data-rec="${esc(x.id)}">
+      <td class="id">${esc(x.id)}</td><td class="id">${esc(x.date)}</td>
+      <td>${chipAcct(x.account)}</td><td class="type" title="${esc(x.type)}">${esc(x.type)}</td>
+      <td class="num">${hours(x.act)}</td><td class="num">${hours(x.prep)}</td>
+      <td>${statusChip(x)}</td>
+      <td>${x.note_ids.length ? `<span class="chip plain">${plural(x.note_ids.length, "note")}</span>` : `<span style="color:var(--ink-3)">—</span>`}</td>
+    </tr>`).join("")}</tbody></table></div></div>`;
+  return {n: rows.length, html};
+}
+
+function viewCalendar() {
+  const ws = words(), a = $("acct").value, f = $("flag").checked;
+  const by = dayItems(ws, a, f), [Y, M] = calMonth.split("-").map(Number);
+  const first = new Date(Y, M - 1, 1), start = new Date(first);
+  start.setDate(1 - ((first.getDay() + 6) % 7));
+  const today = iso(new Date()), name = first.toLocaleString(undefined, {month: "long", year: "numeric"});
+  let cells = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => `<div class="hd">${d}</div>`).join("")
+    + `<div class="hd wk">Week</div>`;
+  let agenda = "", n = 0, nNotes = 0, nRecs = 0;
+  for (let w = 0; w < 6; w++) {
+    let wh = 0, wn = 0, wr = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + w * 7 + i);
+      const k = iso(d), g = by[k];
+      const its = g ? [...g.notes.map(x => `<div class="it n${x.logged_by.length ? "" : " unl"}" data-note="${x.id}"
+            style="--h:${hue(x.account)}" title="${esc(x.title)}">${esc(x.account ? x.account + " · " : "")}${esc(x.title)}</div>`),
+          ...g.recs.map(x => `<div class="it r${x.held ? " h" : ""}" data-rec="${esc(x.id)}"
+            title="${esc(x.id + " " + x.account + " " + x.type)}">${esc(x.id)} · ${hours(x.act)}h</div>`)] : [];
+      if (g) { wh += g.h; wn += g.notes.length; wr += g.recs.length; }
+      cells += `<div class="day${d.getMonth() !== M - 1 ? " out" : ""}${k === today ? " today" : ""}" data-day="${k}">
+        <div class="dtop"><span class="dn">${d.getDate()}</span>${g && g.h ? `<span class="dh">${trim(g.h)}h</span>` : ""}</div>
+        ${its.slice(0, 3).join("")}${its.length > 3 ? `<div class="more">+${its.length - 3} more</div>` : ""}</div>`;
+      if (g && d.getMonth() === M - 1 && its.length) {
+        n += its.length; nNotes += g.notes.length; nRecs += g.recs.length;
+        agenda += `<li data-day="${k}"><span class="d">${esc(fmtShort(k))}</span><div>${its.join("")}</div></li>`;
+      }
+    }
+    cells += `<div class="wk"><b>${trim(wh)}h</b><span>${wr} rec · ${wn} note</span></div>`;
+  }
+  calCount = n; calNotes = nNotes; calRecs = nRecs;
+  const html = `<div class="calbar">
+      <h2>${esc(name)}</h2>
+      <div class="nav"><button data-cal="-1" aria-label="Previous month">‹</button><button data-cal="1" aria-label="Next month">›</button></div>
+      <button class="today-btn" data-cal="0">This month</button>
+      <span class="legend"><span class="chip" style="--h:268">note</span><span class="chip ok"><i class="dot"></i>ready</span><span class="chip warn"><i class="dot"></i>held</span></span>
+    </div>
+    <div class="cal">${cells}</div>
+    <ul class="agenda timeline">${agenda || "<li><span class='d'>—</span><div style='color:var(--ink-3);font-size:13px'>Nothing this month.</div></li>"}</ul>`;
+  return {n: 1, html};
+}
+
+function viewPeriods() {
+  const ws = words(), a = $("acct").value, f = $("flag").checked;
+  const rows = D.periods.filter(x => (!a || x.accounts.includes(a)) && recent(x.to) && (!f || x.held)
+    && hit([x.label, x.kind, x.accounts.join(" ")].join(" "), ws));
+  if (!rows.length) return {n: 0, html: ""};
+  const KINDS = {week: 268, month: 205};
+  const html = `<div class="pgrid">${rows.map(x => `<article class="pcard" style="--h:${KINDS[x.kind] ?? 268};cursor:default">
+    <div class="ptop"><span class="kind">${esc(x.kind)}</span>
+      ${x.held ? `<span class="chip warn" style="margin-left:auto"><i class="dot"></i>${x.held} held</span>` : ""}</div>
+    <div class="ptitle" style="font-family:var(--mono);font-size:12.5px">${esc(x.from)}${x.to !== x.from ? " → " + esc(x.to) : ""}</div>
+    <div class="panel">
+      <div class="metrics">
+        <div><span class="n">${trim(x.act)}<span>h activity</span></span></div>
+        <div><span class="n${trim(x.prep) ? "" : " zero"}">${trim(x.prep)}<span>h prep</span></span></div>
+      </div>
+      <div class="meta">${plural(x.records, "record")}</div>
+      <div class="plinks">${x.xlsx ? `<a href="${esc(x.xlsx)}">Excel</a>` : ""}${x.md ? `<a href="${esc(x.md)}">Markdown</a>` : ""}
+        <a href="${esc(x.folder)}">Folder</a><span style="margin-left:auto">${x.renders}× · ${esc(x.generated || "-")}</span></div>
+    </div>
+  </article>`).join("")}</div>`;
+  return {n: rows.length, html};
+}
+
+function viewAccounts() {
+  const ws = words(), a = $("acct").value, f = $("flag").checked;
+  const by = {};
+  const get = k => by[k] ??= {name: k, notes: [], recs: [], act: 0, prep: 0, last: "", fu: 0};
+  D.notes.forEach(x => { if (!x.account) return; const g = get(x.account);
+    g.notes.push(x); g.fu += x.follow_ups.length; if (x.date > g.last) g.last = x.date; });
+  D.records.filter(x => !x.voided && x.account).forEach(x => { const g = get(x.account); g.recs.push(x);
+    if (!x.held) { g.act += hval(x.act); g.prep += hval(x.prep); } if (x.date > g.last) g.last = x.date; });
+  const rows = Object.values(by).filter(g => (!a || g.name === a) && recent(g.last) && (!f || g.fu)
+    && hit([g.name, ...g.notes.map(x => x.title + " " + x.summary), ...g.recs.map(x => x.type + " " + x.notes)].join(" "), ws))
+    .sort((x, y) => y.last.localeCompare(x.last));
+  if (!rows.length) return {n: 0, html: ""};
+  const html = `<div class="pgrid">${rows.map(g => `<article class="pcard" data-acct="${esc(g.name)}" tabindex="0" role="button" ${hud(g.name)}>
+    <div class="ptop">${tintChip(g.name)}<span class="pdate">last ${esc(g.last)}</span></div>
+    <div class="panel">
+      <div class="metrics">
+        <div><span class="n">${trim(g.act)}<span>h activity</span></span></div>
+        <div><span class="n${trim(g.prep) ? "" : " zero"}">${trim(g.prep)}<span>h prep</span></span></div>
+      </div>
+      <div class="meta" style="margin-top:2px">${plural(g.notes.length, "note")} · ${plural(g.recs.length, "record")}</div>
+      <div class="pfoot">${g.fu ? `<span class="chip warn"><i class="dot"></i>${plural(g.fu, "follow-up")}</span>` : `<span style="color:var(--ink-3)">no open follow-ups</span>`}</div>
+    </div>
+  </article>`).join("")}</div>`;
+  return {n: rows.length, html};
+}
+
+function setSticky() {
+  const c = document.querySelector(".controls");
+  document.documentElement.style.setProperty("--stickytop", (c ? c.offsetHeight : 0) + "px");
+}
+addEventListener("resize", setSticky);
+
+function render() {
+  setSticky();
+  $("flagtxt").textContent = FLAGS[tab];
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.t === tab)));
+  const v = {notes: viewNotes, records: viewRecords, calendar: viewCalendar, periods: viewPeriods, accounts: viewAccounts}[tab]();
+  const noun = {notes: "note", records: "record", periods: "period", accounts: "account"}[tab];
+  $("count").textContent = tab === "calendar"
+    ? `${plural(calNotes, "note")} and ${plural(calRecs, "record")} this month`
+    : `${plural(v.n, noun)} shown`;
+  $("view").innerHTML = v.n ? v.html : `<div class="empty"><b>Nothing matches</b>
+    <p>Try a shorter search, a wider time range, or clear the account filter.</p></div>`;
+}
+
+/* ── drawer ───────────────────────────────────────────── */
+const sheet = $("sheet");
+function show() {
+  sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
+  document.documentElement.style.overflow = "hidden";
+  $("db").scrollTop = 0; $("close").focus({preventScroll: true});
+}
+function hide() {
+  sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true");
+  document.documentElement.style.overflow = ""; stack = []; $("back").hidden = true;
+}
+function push(fn) {
+  stack.push(fn);
+  $("back").hidden = stack.length < 2;
+  fn();
+}
+function back() {
+  stack.pop();
+  if (!stack.length) return hide();
+  stack[stack.length - 1]();
+  $("back").hidden = stack.length < 2;
+}
+
+function openNote(id) {
+  const x = noteById[id]; if (!x) return;
+  $("dt").textContent = x.title;
+  $("dsub").innerHTML = `${chipAcct(x.account)}<span class="chip plain mono">${esc(x.date)}</span>`
+    + (x.hours !== null ? `<span class="chip plain mono">${hours(x.hours)} h</span>` : "")
+    + (x.logged_by.length
+        ? `<span class="chip ok"><i class="dot"></i>logged</span>${x.logged_by.map(r => `<a href="#" data-rec="${esc(r)}" class="chip plain mono">${esc(r)}</a>`).join("")}`
+        : `<span class="chip warn"><i class="dot"></i>not logged</span>`);
+  $("db").innerHTML = `<div class="kv">
+      <dt>Salesforce</dt><dd>${x.logged_by.length ? x.logged_by.map(r => `<a href="#" data-rec="${esc(r)}">${esc(r)}</a>`).join(", ") : "not logged yet"}</dd>
+      <dt>Saved in</dt><dd>${esc(x.where)}${x.folder ? " · " + esc(x.folder) : ""}</dd>
+      <dt>File</dt><dd><a href="${esc(x.url)}">open the note file ↗</a></dd>
+    </div>${mdBody(x.text, x.title)}`;
+  show();
+}
+
+function openRec(id) {
+  const x = recById[id]; if (!x) return;
+  $("dt").textContent = `${x.account || "No account"} · ${x.type}`;
+  $("dsub").innerHTML = `<span class="chip plain mono">${esc(x.id)}</span><span class="chip plain mono">${esc(x.date)}</span>${statusChip(x)}`;
+  const ev = x.evidence.map(e => noteById[e]
+    ? `<a href="#" data-note="${e}">${esc(noteById[e].title)}</a>`
+    : `<span class="chip plain mono">${esc(e)}</span>`).join(" ");
+  $("db").innerHTML = `<div class="kv">
+      <dt>Account</dt><dd>${chipAcct(x.account)}</dd>
+      <dt>Type</dt><dd>${esc(x.type)}</dd>
+      <dt>Date</dt><dd class="mono" style="font-size:12.5px">${esc(x.start && x.start !== x.date ? x.start + " → " + x.date : x.date)}</dd>
+      <dt>Hours</dt><dd><span class="mono">${hours(x.act)}</span> activity · <span class="mono">${hours(x.prep)}</span> prep</dd>
+      <dt>Opportunity</dt><dd>${esc(x.opportunity || "—")}${x.no_opp_reason ? `<br><span style="color:var(--ink-3);font-size:12px">no-opp reason: ${esc(x.no_opp_reason)}</span>` : ""}</dd>
+      <dt>Solution area</dt><dd>${esc(x.area || "—")}</dd>
+      ${x.to_confirm ? `<dt>To confirm</dt><dd>${esc(x.to_confirm)}</dd>` : ""}
+      ${x.supersedes ? `<dt>Replaces</dt><dd><a href="#" data-rec="${esc(x.supersedes)}">${esc(x.supersedes)}</a></dd>` : ""}
+      <dt>Evidence</dt><dd>${ev || "—"}</dd>
+    </div>
+    <div class="sectlabel">Activity hours notes</div><p>${esc(x.notes)}</p>
+    ${x.note_ids.length ? `<div class="sectlabel">Linked notes</div><ul class="timeline">${x.note_ids.map(i => noteById[i]
+      ? `<li><span class="d">${esc(noteById[i].date)}</span><span><a href="#" data-note="${i}">${esc(noteById[i].title)}</a></span></li>` : "").join("")}</ul>` : ""}`;
+  show();
+}
+
+function openDay(k) {
+  const g = dayItems(words(), $("acct").value, $("flag").checked)[k] || {notes: [], recs: [], h: 0};
+  $("dt").textContent = new Date(k + "T00:00").toLocaleDateString(undefined,
+    {weekday: "long", day: "numeric", month: "long", year: "numeric"});
+  $("dsub").innerHTML = `<span class="mono" style="font-size:12px;color:var(--ink-2)">${trim(g.h)} h logged</span>
+    <span class="chip plain">${plural(g.notes.length, "note")}</span><span class="chip plain">${plural(g.recs.length, "record")}</span>`;
+  $("db").innerHTML =
+    `<div class="sectlabel">Notes</div>${g.notes.length ? `<ul class="timeline">${g.notes.map(x =>
+      `<li><span class="d">${x.hours !== null ? hours(x.hours) + " h" : "—"}</span><span><a href="#" data-note="${x.id}">${esc(x.title)}</a>
+       <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">${chipAcct(x.account)}${noteChip(x)}</div></span></li>`).join("")}</ul>`
+      : `<p style="color:var(--ink-3);font-size:13px">No notes.</p>`}
+    <div class="sectlabel">Records</div>${g.recs.length ? `<ul class="timeline">${g.recs.map(x =>
+      `<li><span class="d">${esc(x.id)}</span><span>${esc(x.type)}<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">
+       ${statusChip(x)}<span class="chip plain mono">${hours(x.act)} h</span></div></span></li>`).join("")}</ul>`
+      : `<p style="color:var(--ink-3);font-size:13px">No records.</p>`}`;
+  show();
+}
+
+function openAcct(name) {
+  const notes = D.notes.filter(x => x.account === name), recs = D.records.filter(x => x.account === name && !x.voided);
+  const act = recs.filter(r => !r.held).reduce((s, r) => s + hval(r.act), 0);
+  const prep = recs.filter(r => !r.held).reduce((s, r) => s + hval(r.prep), 0);
+  const items = [...notes.map(x => ({d: x.date, h: `<a href="#" data-note="${x.id}">${esc(x.title)}</a>
+      <div style="margin-top:5px">${noteChip(x)}</div>`})),
+    ...recs.map(x => ({d: x.date, h: `<a href="#" data-rec="${esc(x.id)}">${esc(x.id)} · ${esc(x.type)}</a>
+      <div style="margin-top:5px">${statusChip(x)} <span class="chip plain mono">${hours(x.act)} h</span></div>`}))]
+    .sort((p, q) => q.d.localeCompare(p.d));
+  const fu = notes.flatMap(x => x.follow_ups.map(f => `<li><span>${esc(f)}</span><span class="d" style="text-align:right">${esc(x.date)}</span></li>`));
+  $("dt").textContent = name;
+  $("dsub").innerHTML = `${chipAcct(name)}<span class="chip plain mono">${trim(act)} h activity</span>
+    <span class="chip plain mono">${trim(prep)} h prep</span><span class="chip plain">${plural(notes.length, "note")}</span><span class="chip plain">${plural(recs.length, "record")}</span>`;
+  $("db").innerHTML = (fu.length ? `<div class="sectlabel">Follow-ups from notes</div><ul class="timeline">${fu.join("")}</ul>` : "")
+    + `<div class="sectlabel">Timeline</div><ul class="timeline">${items.map(i =>
+        `<li><span class="d">${esc(i.d)}</span><span>${i.h}</span></li>`).join("")}</ul>`;
+  show();
+}
+
+/* ── wiring ───────────────────────────────────────────── */
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => {
+  tab = b.dataset.t; $("flag").checked = false; render();
+});
+$("goNotes").onclick = () => { tab = "notes"; render(); $("view").scrollIntoView({block: "start", behavior: "smooth"}); };
+$("goCal").onclick = () => { tab = "calendar"; render(); $("view").scrollIntoView({block: "start", behavior: "smooth"}); };
+["q", "acct", "when", "flag"].forEach(id => $(id).addEventListener("input", render));
+$("close").addEventListener("click", hide);
+$("back").addEventListener("click", back);
+
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-close]")) return hide();
+  const sb = e.target.closest("[data-sort]");
+  if (sb) { const k = sb.dataset.sort;
+    sort = sort.key === k ? {key: k, dir: -sort.dir}
+      : {key: k, dir: (k === "date" || k === "act" || k === "prep") ? -1 : 1};
+    render(); return; }
+  const cb = e.target.closest("[data-cal]");
+  if (cb) { const step = +cb.dataset.cal, [Y, M] = calMonth.split("-").map(Number);
+    calMonth = step ? iso(new Date(Y, M - 1 + step, 1)).slice(0, 7) : iso(new Date()).slice(0, 7); render(); return; }
+  const el = e.target.closest("[data-note],[data-rec],[data-acct],[data-day]");
+  if (!el) return;
+  e.preventDefault();
+  if (el.dataset.note) push(() => openNote(el.dataset.note));
+  else if (el.dataset.rec) push(() => openRec(el.dataset.rec));
+  else if (el.dataset.acct) push(() => openAcct(el.dataset.acct));
+  else push(() => openDay(el.dataset.day));
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && sheet.classList.contains("open")) return hide();
+  if (e.key === "/" && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) {
+    e.preventDefault(); $("q").focus(); $("q").select();
+  }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches(".pcard[data-note], .pcard[data-acct]")) {
+    e.preventDefault(); e.target.click();
+  }
+});
+
+render();
+})();
+</script>
+</body>
+</html>

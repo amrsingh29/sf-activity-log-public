@@ -1,0 +1,70 @@
+# SF Activity Log - personal profile. The only file you edit.
+# Full reference: docs/reference/configuration.md
+
+owner:
+  name: "__OWNER__"                 # Salesforce Primary Owner, exactly as in SF
+  email: ""                         # optional; helps recognise you in calendar invites
+  aliases: []                       # your other addresses, e.g. first.last@othercompanydomain.com
+  email_domains: [__DOMAIN__]       # ALL company domains = internal (e.g. mycompany.example, second.example)
+
+timezone: __TZ__                    # IANA name, stored on every ledger row
+
+data_dir: "__DATA_DIR__"            # ledger, cache, output live here
+mirror_to: ~/Downloads              # copy of deliverables; null to disable
+
+workspace:
+  root: null                        # your customer/project folder (used by the files source)
+  account_folder_level: null        # optional hint, e.g. 2 for <Region>/<Account>/...
+  ignore: ["~$*", "*.tmp", ".DS_Store"]
+  internal_folders: ["_Internal"]   # folders whose work is internal (Example Corp)
+
+# rules_pack: ~/my-rules.yaml      # optional: your own rule pack instead of the bundled one
+
+sources:                            # enable/disable each evidence source
+  calendar:
+    enabled: true
+    eventkit_source: Exchange       # account name in macOS Calendar
+    ignore_titles: []               # personal blocks to drop, e.g. ["my day planning", "lunch*"]
+    broadcast_threshold: 40         # more attendees than this -> To-Confirm
+  email:
+    enabled: false
+    account: Exchange               # account name in macOS Mail
+    mailboxes: ["Sent Items"]       # exactly which mailboxes to read, e.g. ["Sent Items", "Inbox"]
+    ignore_subjects: []             # e.g. ["*pto*", "*leave*"]
+  files:
+    enabled: false
+    burst_min_files: 4              # OneDrive sync burst: this many files in one minute across accounts
+    burst_times: []                 # e.g. ["09:47"] - minutes that are always sync noise
+    link_window_days: 3             # file work this close to an activity = prep / follow-up
+  notes:
+    enabled: true
+    path: null                      # glob under workspace.root; null = "**/_ActivityLogging/*.md"
+    save_to: central                # where /log-activity-note saves: central | customer_folder
+  imports:
+    enabled: false                  # Copilot / manual exports dropped in <data_dir>/inbox/
+  gbrain:
+    enabled: false
+
+# Account registry - source of truth for account resolution.
+# kind: customer | partner. Aliases match meeting titles, subjects, file paths (case-insensitive).
+accounts: []
+#  - { name: ACME Bank, kind: customer, aliases: [ACME], domains: [acmebank.com] }
+#  - { name: Some Partner, kind: partner, domains: [partner.com] }
+
+policy_overrides:
+  demo_inside_poc_logs_separately: true
+
+# Docs mirror (optional) - text copies of Word, PowerPoint, PDF and some Excel files, for search
+# (e.g. GBrain). Read-only on your folders; writes only to `output`. Run: sfal docs sync
+docs_mirror:
+  enabled: false
+  output: ~/.sf-activity-log/docs-mirror   # never inside OneDrive, workspace.root or data_dir
+  accounts: []                    # account names from the list above, or [all]
+  exclude_accounts: []            # used with [all]
+  include: [docx, pdf, pptx]      # always converted; add xlsx for every Excel file
+  excel_name_match: [rfp, compliance, requirement, clarification]   # Excel files whose name has one of these
+  max_size_mb: 20
+  skip_folders: [Archive, Old, Drafts]
+  extra_folders: []               # folders outside workspace.root, e.g. a shared folder synced elsewhere
+  gbrain_import: false            # true: update GBrain after every sync (register the source once)
+  gbrain_source: docs             # the GBrain source id the copies go into
